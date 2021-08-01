@@ -1,7 +1,7 @@
 
 <template>
 <el-table
-    :data="tableData.filter(data => !search | data.name.toLowerCase().includes(search.toLowerCase()))"
+    :data="tableData.filter(data => !search | data.name.toLowerCase().includes(search.toLowerCase()) | data.status.toLowerCase().includes(search.toLowerCase()))"
     style="width: 100%">
     <el-table-column
       label="ID"
