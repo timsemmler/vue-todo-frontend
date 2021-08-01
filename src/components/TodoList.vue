@@ -1,7 +1,7 @@
 
 <template>
 <el-table
-    :data="tableData"
+    :data="tableData.filter(data => !search | data.bezeichnung.includes(search.toLowerCase()))"
     style="width: 100%">
     <el-table-column
       label="ID"
@@ -55,7 +55,6 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
         console.log(index, row);
       },
       deleteRow(index){
-        console.log("Try to delete Data with index" , index)
         this.tableData = this.tableData.splice(index,1)
       }
     },
