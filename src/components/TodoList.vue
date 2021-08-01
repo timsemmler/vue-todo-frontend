@@ -31,21 +31,26 @@
           size="mini"
           placeholder="Type to search"/>
         <el-button 
-          type="text" 
+          type="primary" 
           @click="showCreateDialog = true">
-            open a Form nested Dialog1
+            Create
+          </el-button>
+          <el-button
+          size="primary"
+          @click="showUpdateDialog = true">
+            Edit
           </el-button>
       </template>
       <template #default="scope">
-        <el-button
-          size="mini"
-          @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
         <delete-todo-button :row="scope.row" v-on:todo-deleted="deleteRow(scope.$index)"/>
       </template>
     </el-table-column>
   </el-table>
   <el-dialog title="Create new Todo" v-model="showCreateDialog">
-    <create-todo-form v-on:todo-created="addRow($event)"/>
+    <create-todo-form :isEdit="false" v-on:todo-created="handleOnCreated($event)" />
+  </el-dialog>
+  <el-dialog title="Update new Todo" v-model="showUpdateDialog">
+    <create-todo-form :isEdit="true" v-on:todo-updated="handleOnUpdated($event)" />
   </el-dialog>
 </template>
 
@@ -61,6 +66,8 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
         tableData: [],
         search: '',
         showCreateDialog: false,
+        showUpdateDialog: false,
+        isEdit: true
       }
     },
     mounted () {
@@ -69,14 +76,18 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
         .then(response => (this.tableData = response.data))
     },
     methods: {
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      deleteRow(index){
+      deleteRow(index){      
         this.tableData = this.tableData.splice(index,1)
       },
-      addRow(row){
+      handleOnCreated(row){
         this.tableData.push(row)
+        this.showCreateDialog = false
+      },
+      handleOnUpdated(row){
+        const hasSameId = (element) => element.id === row.id
+        let index = this.tableData.findIndex(hasSameId);
+        this.tableData[index] = row
+        this.showUpdateDialog = false
       }
     }
   }

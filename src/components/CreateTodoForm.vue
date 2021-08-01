@@ -1,5 +1,9 @@
 <template>
+Hello {{isEdit}}
   <el-form :model="form">
+    <el-form-item v-if="isEdit" label="Id" :label-width="formLabelWidth">
+      <el-input-number v-model="form.id" @change="loadById()"></el-input-number>
+    </el-form-item>
     <el-form-item label="Category" :label-width="formLabelWidth">
     <el-select v-model="form.category" placeholder="Select">
       <el-option
@@ -9,7 +13,7 @@
         :value="category.value">
       </el-option>
     </el-select>
-    <el-button type="primary" :disabled="!form.category" @click="loadFromRandomApi()">Generate Random <i class="el-icon-magic-stick"></i></el-button>
+    <el-button type="primary" :disabled="!form.category" @click="loadFromRandomApi()">{{todoElement}}<i class="el-icon-magic-stick"></i></el-button>
     </el-form-item>
     <el-form-item label="Name" :label-width="formLabelWidth">
       <el-input v-model="form.name"></el-input>
@@ -18,13 +22,15 @@
       <el-input-number v-model="form.participants"></el-input-number>
     </el-form-item>
   </el-form>
-    <el-button type="primary" @click="create()" :justify="end">Save</el-button>
+    <el-button :disabled="isEdit && form.id == null | !isEdit" type="primary" @click="save()">Save</el-button>
 </template>
 
 <script>
   export default {
     name: 'CreateTodoForm',
-    props: {},
+    props: {
+      isEdit: Boolean
+    },
     data() {
       return {
         categories: [{
@@ -56,30 +62,55 @@
           label: 'Busywork'
         }],
         form: {
+          id: null,
           name: '',
           category: '',
-          participants: 0
+          participants: 0,
+          status: null
         },
-        formLabelWidth: '120px'
+        formLabelWidth: '120px',
       };
     },
     methods: {
+       loadById(){
+        axios
+            .get('http://localhost:8081/rest/task/' + this.form.id)
+            .then(response => {
+              this.form = response.data
+              })
+      },
       loadFromRandomApi(){
         axios
             .get('http://www.boredapi.com/api/activity?type=' + this.form.category)
             .then(response => {
-              console.log(response) 
               this.form.name = response.data.activity
               this.form.participants = response.data.participants
               })
       },
-       create(){
-        axios
+      resetForm(){
+        this.form.id = 0
+        this.form.name = ''
+        this.form.category = ''
+        this.form.status = 'OPEN'
+        this.form.participants = 0 
+      },
+      save(){
+        if(this.isEdit){
+          axios
+            .put('http://localhost:8081/rest/task/' + this.form.id, this.form)
+            .then(response => {
+              if(response.status === 200){this.$emit('todo-updated', response.data)}
+              this.resetForm()
+              })
+        } else {
+          axios
             .put('http://localhost:8081/rest/tasks', this.form)
             .then(response => {
-              console.log(response) 
               if(response.status === 201){this.$emit('todo-created', response.data)}
+              this.resetForm()
               })
+        }
+        
       }
     }
   };
