@@ -1,18 +1,26 @@
 
 <template>
 <el-table
-    :data="tableData.filter(data => !search | data.bezeichnung.includes(search.toLowerCase()))"
+    :data="tableData.filter(data => !search | data.name.toLowerCase().includes(search.toLowerCase()))"
     style="width: 100%">
     <el-table-column
       label="ID"
       prop="id">
     </el-table-column>
     <el-table-column
-      label="Bezeichnung"
-      prop="bezeichnung">
+      label="name"
+      prop="name">
     </el-table-column>
      <el-table-column
-      label="Status"
+      label="category"
+      prop="category">
+    </el-table-column>
+     <el-table-column
+      label="participants"
+      prop="participants">
+    </el-table-column>
+     <el-table-column
+      label="status"
       prop="status">
     </el-table-column>
     <el-table-column
@@ -22,6 +30,11 @@
           v-model="search"
           size="mini"
           placeholder="Type to search"/>
+        <el-button 
+          type="text" 
+          @click="showCreateDialog = true">
+            open a Form nested Dialog1
+          </el-button>
       </template>
       <template #default="scope">
         <el-button
@@ -31,18 +44,23 @@
       </template>
     </el-table-column>
   </el-table>
+  <el-dialog title="Create new Todo" v-model="showCreateDialog">
+    <create-todo-form v-on:todo-created="addRow($event)"/>
+  </el-dialog>
 </template>
 
 <script>
+import CreateTodoForm from './CreateTodoForm.vue'
 import DeleteTodoButton from './DeleteTodoButton.vue'
   export default {
-  components: { DeleteTodoButton },
+  components: { DeleteTodoButton, CreateTodoForm },
       name: 'TodoList',
       props: {},
     data() {
       return {
         tableData: [],
         search: '',
+        showCreateDialog: false,
       }
     },
     mounted () {
@@ -56,7 +74,10 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
       },
       deleteRow(index){
         this.tableData = this.tableData.splice(index,1)
+      },
+      addRow(row){
+        this.tableData.push(row)
       }
-    },
+    }
   }
 </script>

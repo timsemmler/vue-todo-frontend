@@ -16,7 +16,7 @@
       handleClick() {
         axios
             .delete('http://localhost:8081/rest/task/' + this.row.id)
-            .then(response => {if(response.status === 204){this.$emit('todo-deleted')}})
+            .then(response => {if(response.status === 204){this.$emit('todo-deleted',response.data)}})
         }
       }
   }
