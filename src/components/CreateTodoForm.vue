@@ -21,6 +21,16 @@ Hello {{isEdit}}
     <el-form-item label="Participants" :label-width="formLabelWidth">
       <el-input-number v-model="form.participants"></el-input-number>
     </el-form-item>
+    <el-form-item v-if="isEdit" label="States" :label-width="formLabelWidth">
+    <el-select v-model="form.status" placeholder="Select">
+      <el-option
+        v-for="status in states"
+        :key="status"
+        :label="status"
+        :value="status">
+      </el-option>
+    </el-select>
+    </el-form-item>
   </el-form>
     <el-button :disabled="isEdit && form.id == null | !isEdit" type="primary" @click="save()">Save</el-button>
 </template>
@@ -69,7 +79,13 @@ Hello {{isEdit}}
           status: null
         },
         formLabelWidth: '120px',
+        states: []
       };
+    },
+    mounted () {
+      axios
+        .get('http://localhost:8081/rest/task/states')
+        .then(response => (this.states = response.data))
     },
     methods: {
        loadById(){
