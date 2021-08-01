@@ -27,17 +27,16 @@
         <el-button
           size="mini"
           @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+        <delete-todo-button :row="scope.row" v-on:todo-deleted="deleteRow(scope.$index)"/>
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <script>
+import DeleteTodoButton from './DeleteTodoButton.vue'
   export default {
+  components: { DeleteTodoButton },
       name: 'TodoList',
       props: {},
     data() {
@@ -50,16 +49,14 @@
       axios
         .get('http://localhost:8081/rest/tasks')
         .then(response => (this.tableData = response.data))
-        .catch(console.log('CATCH'))
-
-      console.log(this.tableData)
     },
     methods: {
       handleEdit(index, row) {
         console.log(index, row);
       },
-      handleDelete(index, row) {
-        console.log(index, row);
+      deleteRow(index){
+        console.log("Try to delete Data with index" , index)
+        this.tableData = this.tableData.splice(index,1)
       }
     },
   }
