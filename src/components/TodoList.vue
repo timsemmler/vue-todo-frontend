@@ -32,26 +32,17 @@
           placeholder="Type to search"/>
         <el-button 
           type="primary" 
-          @click="showCreateDialog = true">
+          @click="openCreateDialog()">
             Create
-          </el-button>
-          <el-button
-          size="primary"
-          @click="showUpdateDialog = true">
-            Edit
-          </el-button>
+          </el-button>    
       </template>
       <template #default="scope">
         <delete-todo-button :row="scope.row" v-on:todo-deleted="deleteRow(scope.$index)"/>
+        <el-button size="primary" @click="openEditDialog(scope.$index)">Edit</el-button>
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="Create new Todo" v-model="showCreateDialog">
-    <create-todo-form :isEdit="false" v-on:todo-created="handleOnCreated($event)" />
-  </el-dialog>
-  <el-dialog title="Update new Todo" v-model="showUpdateDialog">
-    <create-todo-form :isEdit="true" v-on:todo-updated="handleOnUpdated($event)" />
-  </el-dialog>
+  <create-todo-form :elementToEdit="selectedElement" :show="isDialogOpen" v-on:todo-created="handleOnCreated($event)" v-on:todo-updated="handleOnUpdated($event)" />
 </template>
 
 <script>
@@ -60,14 +51,15 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
   export default {
   components: { DeleteTodoButton, CreateTodoForm },
       name: 'TodoList',
-      props: {},
+      props: {
+      },
     data() {
       return {
         tableData: [],
         search: '',
-        showCreateDialog: false,
-        showUpdateDialog: false,
-        isEdit: true
+        isDialogOpen: false, 
+        isEdit: true,
+        selectedElement: {}
       }
     },
     mounted () {
@@ -76,18 +68,27 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
         .then(response => (this.tableData = response.data))
     },
     methods: {
+      openEditDialog(index){
+        console.log("Open Editdialog with method", index, this.tableData[index])
+        this.selectedElement = this.tableData[index]
+        this.isDialogOpen = true
+      },
+      openCreateDialog(){
+        this.selectedElement = null
+        this.isDialogOpen = true
+      },
       deleteRow(index){      
         this.tableData = this.tableData.splice(index,1)
       },
       handleOnCreated(row){
         this.tableData.push(row)
-        this.showCreateDialog = false
+        this.isDialogOpen = false
       },
       handleOnUpdated(row){
         const hasSameId = (element) => element.id === row.id
         let index = this.tableData.findIndex(hasSameId);
         this.tableData[index] = row
-        this.showUpdateDialog = false
+        this.isDialogOpen = false
       }
     }
   }

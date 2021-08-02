@@ -1,9 +1,6 @@
 <template>
-Hello {{isEdit}}
+<el-dialog :title="title" v-model="show">
   <el-form :model="form">
-    <el-form-item v-if="isEdit" label="Id" :label-width="formLabelWidth">
-      <el-input-number v-model="form.id" @change="loadById()"></el-input-number>
-    </el-form-item>
     <el-form-item label="Category" :label-width="formLabelWidth">
     <el-select v-model="form.category" placeholder="Select">
       <el-option
@@ -21,7 +18,7 @@ Hello {{isEdit}}
     <el-form-item label="Participants" :label-width="formLabelWidth">
       <el-input-number v-model="form.participants"></el-input-number>
     </el-form-item>
-    <el-form-item v-if="isEdit" label="States" :label-width="formLabelWidth">
+    <el-form-item v-if="this.elementToEdit" label="States" :label-width="formLabelWidth">
     <el-select v-model="form.status" placeholder="Select">
       <el-option
         v-for="status in states"
@@ -32,14 +29,16 @@ Hello {{isEdit}}
     </el-select>
     </el-form-item>
   </el-form>
-    <el-button :disabled="isEdit && form.id == null | !isEdit" type="primary" @click="save()">Save</el-button>
+  <el-button :disabled="this.elementToEdit && form.id == null | !this.elementToEdit" type="primary" @click="save()">Save</el-button>
+</el-dialog>
 </template>
 
 <script>
   export default {
     name: 'CreateTodoForm',
     props: {
-      isEdit: Boolean
+      show:  Boolean,
+      elementToEdit: Object
     },
     data() {
       return {
@@ -79,7 +78,8 @@ Hello {{isEdit}}
           status: null
         },
         formLabelWidth: '120px',
-        states: []
+        states: [],
+        title: ""
       };
     },
     mounted () {
@@ -87,14 +87,21 @@ Hello {{isEdit}}
         .get('http://localhost:8081/rest/task/states')
         .then(response => (this.states = response.data))
     },
+    watch: {
+      show: {
+        handler() {
+          console.log("Watcher activated!!!", this.elementToEdit)
+          if(this.elementToEdit) {
+            this.form = this.elementToEdit
+            this.title = "Edit Todo"
+          } else {
+            this.resetForm()
+            this.title = "Create Todo"
+          }          
+        }
+      }
+    },
     methods: {
-       loadById(){
-        axios
-            .get('http://localhost:8081/rest/task/' + this.form.id)
-            .then(response => {
-              this.form = response.data
-              })
-      },
       loadFromRandomApi(){
         axios
             .get('http://www.boredapi.com/api/activity?type=' + this.form.category)
@@ -111,7 +118,7 @@ Hello {{isEdit}}
         this.form.participants = 0 
       },
       save(){
-        if(this.isEdit){
+        if(this.elementToEdit){
           axios
             .put('http://localhost:8081/rest/task/' + this.form.id, this.form)
             .then(response => {
