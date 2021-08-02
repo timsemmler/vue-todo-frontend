@@ -10,7 +10,7 @@
         :value="category.value">
       </el-option>
     </el-select>
-    <el-button type="primary" :disabled="!form.category" @click="loadFromRandomApi()">{{todoElement}}<i class="el-icon-magic-stick"></i></el-button>
+    <el-button type="primary" :disabled="!form.category" @click="loadFromRandomApi()">Generate Random <i class="el-icon-magic-stick"></i></el-button>
     </el-form-item>
     <el-form-item label="Name" :label-width="formLabelWidth" prop="name">
       <el-input v-model="form.name"></el-input>
@@ -18,7 +18,7 @@
     <el-form-item label="Participants" :label-width="formLabelWidth" prop="participants">
       <el-input-number v-model="form.participants"></el-input-number>
     </el-form-item>
-    <el-form-item v-if="this.elementToEdit" label="States" :label-width="formLabelWidth">
+    <el-form-item v-if="this.elementToEdit" label="States" :label-width="formLabelWidth" prop="status">
     <el-select v-model="form.status" placeholder="Select">
       <el-option
         v-for="status in states"
@@ -29,13 +29,17 @@
     </el-select>
     </el-form-item>
   </el-form>
-  <el-button :disabled="this.elementToEdit && form.id == null | !this.elementToEdit" type="primary" @click="save()">Save</el-button>
+  <template #footer>
+    <span class="dialog-footer">
+    <el-button type="primary" @click="save()">Save</el-button>
+    </span>
+  </template>
 </el-dialog>
 </template>
 
 <script>
   export default {
-    name: 'CreateTodoForm',
+    name: 'TodoDialog',
     props: {
       show:  Boolean,
       elementToEdit: Object
@@ -72,15 +76,17 @@
         }],
         rules: {
           category: [
-            {required: true, message: 'Please select at an activity category', trigger: 'change' }
+            {required: true, message: 'Please select at an activity category', trigger: 'change' },
           ],
           name: [
             {required: true, message: 'Please input Activity name', trigger: 'blur' },
           ],
           participants: [
             {type:'number', required: true, message: 'Please input number of participants', trigger: 'change' },
-            { min: 1, max: 5, message: 'Number should be between 1 to 20', trigger: 'blur' }
           ],
+          status: [
+            {required: true, message: 'Please select the current state', trigger: 'change' },
+          ]
         },
         form: {
           id: null,
@@ -123,7 +129,9 @@
               })
       },
       resetForm(){
-        this.$refs['todoform'].resetFields()
+        if( this.$refs['todoform']){
+          this.$refs['todoform'].resetFields()
+        }
       },
       save(){
         this.$refs['todoform'].validate(valid =>{

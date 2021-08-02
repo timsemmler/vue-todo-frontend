@@ -1,8 +1,5 @@
 <template #default="scope">
-    <el-button
-          size="mini"
-          type="danger"
-          @click="handleClick()">Delete</el-button>
+    <el-button type="danger" icon="el-icon-delete" @click="handleClick()" circle></el-button>
 </template>
 
 <script>

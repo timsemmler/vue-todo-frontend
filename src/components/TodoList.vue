@@ -26,19 +26,14 @@
     <el-table-column
       align="right">
       <template #header>
-        <el-input
-          v-model="search"
-          size="mini"
-          placeholder="Type to search"/>
-        <el-button 
-          type="primary" 
-          @click="openCreateDialog()">
-            Create
-          </el-button>    
+        <span>
+        <el-input v-model="search" size="mini" placeholder="Type to search"/>
+        <el-button type="primary" icon="el-icon-plus" @click="openCreateDialog()" circle></el-button>  
+        </span>
       </template>
       <template #default="scope">
         <delete-todo-button :row="scope.row" v-on:todo-deleted="deleteRow(scope.$index)"/>
-        <el-button size="primary" @click="openEditDialog(scope.$index)">Edit</el-button>
+        <el-button type="primary" icon="el-icon-edit" @click="openEditDialog(scope.$index)" circle></el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -46,7 +41,7 @@
 </template>
 
 <script>
-import CreateTodoForm from './CreateTodoForm.vue'
+import CreateTodoForm from './TodoDialog.vue'
 import DeleteTodoButton from './DeleteTodoButton.vue'
   export default {
   components: { DeleteTodoButton, CreateTodoForm },
@@ -65,7 +60,8 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
     mounted () {
       axios
         .get('http://localhost:8081/rest/tasks')
-        .then(response => (this.tableData = response.data))
+        .then(response => {this.tableData = response.data}
+        )
     },
     methods: {
       openEditDialog(index){
