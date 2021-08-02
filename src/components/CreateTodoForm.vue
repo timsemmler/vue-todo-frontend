@@ -1,7 +1,7 @@
 <template>
 <el-dialog :title="title" v-model="show">
-  <el-form :model="form">
-    <el-form-item label="Category" :label-width="formLabelWidth">
+  <el-form :model="form" :rules="rules" ref="todoform">
+    <el-form-item label="Category" :label-width="formLabelWidth" prop="category">
     <el-select v-model="form.category" placeholder="Select">
       <el-option
         v-for="category in categories"
@@ -12,10 +12,10 @@
     </el-select>
     <el-button type="primary" :disabled="!form.category" @click="loadFromRandomApi()">{{todoElement}}<i class="el-icon-magic-stick"></i></el-button>
     </el-form-item>
-    <el-form-item label="Name" :label-width="formLabelWidth">
+    <el-form-item label="Name" :label-width="formLabelWidth" prop="name">
       <el-input v-model="form.name"></el-input>
     </el-form-item>
-    <el-form-item label="Participants" :label-width="formLabelWidth">
+    <el-form-item label="Participants" :label-width="formLabelWidth" prop="participants">
       <el-input-number v-model="form.participants"></el-input-number>
     </el-form-item>
     <el-form-item v-if="this.elementToEdit" label="States" :label-width="formLabelWidth">
@@ -70,6 +70,18 @@
           value: 'busywork',
           label: 'Busywork'
         }],
+        rules: {
+          category: [
+            {required: true, message: 'Please select at an activity category', trigger: 'change' }
+          ],
+          name: [
+            {required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          participants: [
+            {type:'number', required: true, message: 'Please input number of participants', trigger: 'change' },
+            { min: 1, max: 5, message: 'Number should be between 1 to 20', trigger: 'blur' }
+          ],
+        },
         form: {
           id: null,
           name: '',
@@ -111,14 +123,12 @@
               })
       },
       resetForm(){
-        this.form.id = 0
-        this.form.name = ''
-        this.form.category = ''
-        this.form.status = 'OPEN'
-        this.form.participants = 0 
+        this.$refs['todoform'].resetFields()
       },
       save(){
-        if(this.elementToEdit){
+        this.$refs['todoform'].validate(valid =>{
+        if(valid){
+          if(this.elementToEdit){
           axios
             .put('http://localhost:8081/rest/task/' + this.form.id, this.form)
             .then(response => {
@@ -132,8 +142,9 @@
               if(response.status === 201){this.$emit('todo-created', response.data)}
               this.resetForm()
               })
+          }
         }
-        
+        })  
       }
     }
   };
