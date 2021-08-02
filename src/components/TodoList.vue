@@ -37,14 +37,15 @@
       </template>
     </el-table-column>
   </el-table>
-  <create-todo-form :elementToEdit="selectedElement" :show="isDialogOpen" v-on:todo-created="handleOnCreated($event)" v-on:todo-updated="handleOnUpdated($event)" />
+  <todo-dialog :elementToEdit="selectedElement" :show="isDialogOpen" v-on:todo-created="handleOnCreated($event)" v-on:todo-updated="handleOnUpdated($event)"/>
 </template>
 
 <script>
-import CreateTodoForm from './TodoDialog.vue'
+import TodoDialog from './TodoDialog.vue'
 import DeleteTodoButton from './DeleteTodoButton.vue'
+
   export default {
-  components: { DeleteTodoButton, CreateTodoForm },
+  components: { DeleteTodoButton, TodoDialog },
       name: 'TodoList',
       props: {
       },
@@ -65,7 +66,6 @@ import DeleteTodoButton from './DeleteTodoButton.vue'
     },
     methods: {
       openEditDialog(index){
-        console.log("Open Editdialog with method", index, this.tableData[index])
         this.selectedElement = this.tableData[index]
         this.isDialogOpen = true
       },
